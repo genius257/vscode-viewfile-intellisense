@@ -1,5 +1,5 @@
 {
-	"name": "lsp-sample-client",
+	"name": "vscode-viewfile-intellisense-client",
 	"description": "VSCode part of a language server",
 	"author": "Microsoft Corporation",
 	"license": "MIT",
@@ -13,7 +13,9 @@
 		"vscode": "^1.52.0"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^7.0.0"
+		"vscode-languageclient": "^7.0.0",
+		"execa": "1.0.0",
+		"mz": "2.7.0"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.52.0",
