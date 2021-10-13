@@ -1,0 +1,12 @@
+{
+    "config": {
+        "platform": {
+            "php": "7.2.5"
+        }
+    },
+	"require": {
+		"genius257/viewfile-language-server": "^1.0.0"
+	},
+	"minimum-stability": "dev",
+    "prefer-stable" : true
+}
