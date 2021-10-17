@@ -616,16 +616,16 @@
         },
         {
             "name": "genius257/viewfile-language-server",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/genius257/ViewFile-Language-Server.git",
-                "reference": "0a8f9f99e4981c4d0f6225b28ca862e7aa3cef91"
+                "reference": "ef2114e992b4435accc91b235864ad35551eb3ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/genius257/ViewFile-Language-Server/zipball/0a8f9f99e4981c4d0f6225b28ca862e7aa3cef91",
-                "reference": "0a8f9f99e4981c4d0f6225b28ca862e7aa3cef91",
+                "url": "https://api.github.com/repos/genius257/ViewFile-Language-Server/zipball/ef2114e992b4435accc91b235864ad35551eb3ad",
+                "reference": "ef2114e992b4435accc91b235864ad35551eb3ad",
                 "shasum": ""
             },
             "require": {
@@ -674,7 +674,7 @@
                 "issues": "https://github.com/genius257/ViewFile-Language-Server/issues",
                 "source": "https://github.com/genius257/ViewFile-Language-Server"
             },
-            "time": "2021-10-10T01:04:50+00:00"
+            "time": "2021-10-17T02:35:26+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
