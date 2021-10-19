@@ -1,5 +1,6 @@
 {
 	"name": "vscode-viewfile-intellisense",
+	"displayName": "ViewFile intellisense",
 	"description": "Language server for the viewfile php composer package",
 	"author": "Anders Pedersen",
 	"license": "MIT",
