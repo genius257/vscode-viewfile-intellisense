@@ -1,92 +1,92 @@
-import * as execa from 'execa'
-import { ChildProcess, spawn } from 'mz/child_process'
-import * as net from 'net'
-import * as path from 'path'
-import * as semver from 'semver'
-import * as url from 'url'
-import * as vscode from 'vscode'
-import { /*LanguageClient,*/ LanguageClientOptions, RevealOutputChannelOn/*, StreamInfo*/ } from 'vscode-languageclient'
+import * as execa from 'execa';
+import { ChildProcess, spawn } from 'mz/child_process';
+import * as net from 'net';
+import * as path from 'path';
+import * as semver from 'semver';
+import * as url from 'url';
+import * as vscode from 'vscode';
+import { /*LanguageClient,*/ LanguageClientOptions, RevealOutputChannelOn/*, StreamInfo*/ } from 'vscode-languageclient';
 import { LanguageClient } from 'vscode-languageclient/node';
 
 interface StreamInfo {
-	writer: NodeJS.WritableStream;
-	reader: NodeJS.ReadableStream;
-	detached?: boolean;
+    writer: NodeJS.WritableStream;
+    reader: NodeJS.ReadableStream;
+    detached?: boolean;
 }
 
-const composerJson = require('../../composer.json')//FIXME: move composer into client folder
+const composerJson = require('../../composer.json');//FIXME: move composer into client folder
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-    const conf = vscode.workspace.getConfiguration('php')
+    const conf = vscode.workspace.getConfiguration('php');
     const viewFileConf = vscode.workspace.getConfiguration('viewfileLanguageServer');
     const executablePath =
         conf.get<string>('executablePath') ||
         conf.get<string>('validate.executablePath') ||
-        (process.platform === 'win32' ? 'php.exe' : 'php')
+        (process.platform === 'win32' ? 'php.exe' : 'php');
 
-    const memoryLimit = conf.get<string>('memoryLimit') || '4095M'
+    const memoryLimit = conf.get<string>('memoryLimit') || '4095M';
 
     if (memoryLimit !== '-1' && !/^\d+[KMG]?$/.exec(memoryLimit)) {
         const selected = await vscode.window.showErrorMessage(
             'The memory limit you\'d provided is not numeric, nor "-1" nor valid php shorthand notation!',
             'Open settings'
-        )
+        );
         if (selected === 'Open settings') {
-            await vscode.commands.executeCommand('workbench.action.openGlobalSettings')
+            await vscode.commands.executeCommand('workbench.action.openGlobalSettings');
         }
-        return
+        return;
     }
 
     // Check path (if PHP is available and version is ^7.0.0)
-    let stdout: string
+    let stdout: string;
     try {
-        stdout = await execa.stdout(executablePath, ['--version'])
+        stdout = await execa.stdout(executablePath, ['--version']);
     } catch (err) {
         if (err.code === 'ENOENT') {
             const selected = await vscode.window.showErrorMessage(
                 'PHP executable not found. Install PHP 7 and add it to your PATH or set the php.executablePath setting',
                 'Open settings'
-            )
+            );
             if (selected === 'Open settings') {
-                await vscode.commands.executeCommand('workbench.action.openGlobalSettings')
+                await vscode.commands.executeCommand('workbench.action.openGlobalSettings');
             }
         } else {
-            vscode.window.showErrorMessage('Error spawning PHP: ' + err.message)
-            console.error(err)
+            vscode.window.showErrorMessage('Error spawning PHP: ' + err.message);
+            console.error(err);
         }
-        return
+        return;
     }
 
     // Parse version and discard OS info like 7.0.8--0ubuntu0.16.04.2
-    const match = stdout.match(/^PHP ([^\s]+)/m)
+    const match = stdout.match(/^PHP ([^\s]+)/m);
     if (!match) {
-        vscode.window.showErrorMessage('Error parsing PHP version. Please check the output of php --version')
-        return
+        vscode.window.showErrorMessage('Error parsing PHP version. Please check the output of php --version');
+        return;
     }
-    let version = match[1].split('-')[0]
+    let version = match[1].split('-')[0];
     // Convert PHP prerelease format like 7.0.0rc1 to 7.0.0-rc1
     if (!/^\d+.\d+.\d+$/.test(version)) {
-        version = version.replace(/(\d+.\d+.\d+)/, '$1-')
+        version = version.replace(/(\d+.\d+.\d+)/, '$1-');
     }
     if (semver.lt(version, composerJson.config.platform.php)) {
-        vscode.window.showErrorMessage('The language server needs at least PHP 7.1 installed. Version found: ' + version)
-        return
+        vscode.window.showErrorMessage('The language server needs at least PHP 7.1 installed. Version found: ' + version);
+        return;
     }
 
-    let client: LanguageClient
+    let client: LanguageClient;
 
     const serverOptions = () =>
         new Promise<ChildProcess | StreamInfo>((resolve, reject) => {
             // Use a TCP socket because of problems with blocking STDIO
             const server = net.createServer(socket => {
                 // 'connection' listener
-                console.log('PHP process connected')
+                console.log('PHP process connected');
                 socket.on('end', () => {
-                    console.log('PHP process disconnected')
-                })
-                server.close()
-                resolve({ reader: socket, writer: socket })
-            })
+                    console.log('PHP process disconnected');
+                });
+                server.close();
+                resolve({ reader: socket, writer: socket });
+            });
             // Listen on random port
             server.listen(viewFileConf.get<number>('LSP.client.port') ?? 0, viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1', () => {
                 const { port } = server.address() as net.AddressInfo;
@@ -97,26 +97,26 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     ),
                     '--tcp=' + (viewFileConf.get<string>('LSP.server.ip') ?? '127.0.0.1') + ':' + viewFileConf.get<string>('LSP.server.port') ?? port,
                     '--memory-limit=' + memoryLimit,
-                ])
+                ]);
                 childProcess.stderr.on('data', (chunk: Buffer) => {
-                    const str = chunk.toString()
-                    console.log('ViewFile intellisense:', str)
-                    client.outputChannel.appendLine(str)
-                })
+                    const str = chunk.toString();
+                    console.log('ViewFile intellisense:', str);
+                    client.outputChannel.appendLine(str);
+                });
                 // childProcess.stdout.on('data', (chunk: Buffer) => {
                 //     console.log('ViewFile intellisense:', chunk + '');
                 // });
                 childProcess.on('exit', (code, signal) => {
                     client.outputChannel.appendLine(
                         `Language server exited ` + (signal ? `from signal ${signal}` : `with exit code ${code}`)
-                    )
+                    );
                     if (code !== 0) {
-                        client.outputChannel.show()
+                        client.outputChannel.show();
                     }
-                })
-                return childProcess
-            })
-        })
+                });
+                return childProcess;
+            });
+        });
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
@@ -135,13 +135,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             // Notify the server about changes to PHP files in the workspace
             fileEvents: vscode.workspace.createFileSystemWatcher('**/*.php'),
         },
-    }
+    };
 
     // Create the language client and start the client.
-    client = new LanguageClient('ViewFile intellisense', serverOptions, clientOptions)
-    const disposable = client.start()
+    client = new LanguageClient('ViewFile intellisense', serverOptions, clientOptions);
+    const disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the
     // client can be deactivated on extension deactivation
-    context.subscriptions.push(disposable)
+    context.subscriptions.push(disposable);
 }
