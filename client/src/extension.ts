@@ -88,7 +88,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 resolve({ reader: socket, writer: socket })
             })
             // Listen on random port
-            server.listen(viewFileConf.get<string>('LSP.client.port') ?? 0, viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1', () => {
+            server.listen(viewFileConf.get<number>('LSP.client.port') ?? 0, viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1', () => {
                 const { port } = server.address() as net.AddressInfo;
                 // The server is implemented in PHP
                 const childProcess = spawn(executablePath, [
