@@ -99,11 +99,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 ])
                 childProcess.stderr.on('data', (chunk: Buffer) => {
                     const str = chunk.toString()
-                    console.log('PHP Language Server:', str)
+                    console.log('ViewFile intellisense:', str)
                     client.outputChannel.appendLine(str)
                 })
                 // childProcess.stdout.on('data', (chunk: Buffer) => {
-                //     console.log('PHP Language Server:', chunk + '');
+                //     console.log('ViewFile intellisense:', chunk + '');
                 // });
                 childProcess.on('exit', (code, signal) => {
                     client.outputChannel.appendLine(
@@ -137,7 +137,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }
 
     // Create the language client and start the client.
-    client = new LanguageClient('PHP Language Server', serverOptions, clientOptions)
+    client = new LanguageClient('ViewFile intellisense', serverOptions, clientOptions)
     const disposable = client.start()
 
     // Push the disposable to the context's subscriptions so that the
