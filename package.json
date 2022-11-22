@@ -32,6 +32,36 @@
 					"default": 100,
 					"description": "Controls the maximum number of problems produced by the server."
 				},
+				"viewfileLanguageServer.LSP.client.ip": {
+					"scope": "resource",
+					"type": "string",
+					"default": "127.0.0.1",
+					"description": "The IP for the LSP client socket"
+				},
+				"viewfileLanguageServer.LSP.client.port": {
+					"scope": "resource",
+					"type": [
+						"number",
+						"null"
+					],
+					"default": null,
+					"description": "The port for the LSP client socket. default will be a random available port"
+				},
+				"viewfileLanguageServer.LSP.server.ip": {
+					"scope": "resource",
+					"type": "string",
+					"default": "127.0.0.1",
+					"description": "The IP for the LSP server socket"
+				},
+				"viewfileLanguageServer.LSP.server.port": {
+					"scope": "resource",
+					"type": [
+						"number",
+						"null"
+					],
+					"default": null,
+					"description": "The port for the LSP server socket. default will be a random available port choosen by the client"
+				},
 				"php.executablePath": {
 					"description": "Points to the PHP executable.",
 					"type": [

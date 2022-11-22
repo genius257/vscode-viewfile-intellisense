@@ -18,6 +18,7 @@ const composerJson = require('../../composer.json')//FIXME: move composer into c
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     const conf = vscode.workspace.getConfiguration('php')
+    const viewFileConf = vscode.workspace.getConfiguration('viewfileLanguageServer');
     const executablePath =
         conf.get<string>('executablePath') ||
         conf.get<string>('validate.executablePath') ||
@@ -87,14 +88,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 resolve({ reader: socket, writer: socket })
             })
             // Listen on random port
-            server.listen(0, '127.0.0.1', () => {
+            server.listen(viewFileConf.get<string>('LSP.client.port') ?? 0, viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1', () => {
                 const { port } = server.address() as net.AddressInfo;
                 // The server is implemented in PHP
                 const childProcess = spawn(executablePath, [
                     context.asAbsolutePath(
                         path.join('vendor', 'genius257', 'viewfile-language-server', 'bin', 'viewfile-language-server.php')
                     ),
-                    '--tcp=127.0.0.1:' + port,
+                    '--tcp=' + (viewFileConf.get<string>('LSP.server.ip') ?? '127.0.0.1') + ':' + viewFileConf.get<string>('LSP.server.port') ?? port,
                     '--memory-limit=' + memoryLimit,
                 ])
                 childProcess.stderr.on('data', (chunk: Buffer) => {
