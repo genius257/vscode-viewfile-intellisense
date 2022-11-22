@@ -70,6 +70,12 @@
 					],
 					"default": null,
 					"scope": "application"
+				},
+				"php.memoryLimit": {
+					"description": "The memory limit for the PHP executable instance.",
+					"type": "string",
+					"default": "4095M",
+					"scope": "application"
 				}
 			}
 		}
