@@ -95,7 +95,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     context.asAbsolutePath(
                         path.join('vendor', 'genius257', 'viewfile-language-server', 'bin', 'viewfile-language-server.php')
                     ),
-                    '--tcp=' + (viewFileConf.get<string>('LSP.server.ip') ?? '127.0.0.1') + ':' + viewFileConf.get<string>('LSP.server.port') ?? port,
+                    '--tcp=' + (viewFileConf.get<string>('LSP.server.ip') ?? '127.0.0.1') + ':' + (viewFileConf.get<number>('LSP.server.port') ?? port),
                     '--memory-limit=' + memoryLimit,
                 ]);
                 childProcess.stderr.on('data', (chunk: Buffer) => {
