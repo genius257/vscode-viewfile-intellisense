@@ -87,9 +87,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 server.close();
                 resolve({ reader: socket, writer: socket });
             });
+            client.outputChannel.appendLine("Listening for ViewFile language server on " + (viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1') + ':' + (viewFileConf.get<number>('LSP.client.port') ?? 'RANDOM'));
             // Listen on random port
             server.listen(viewFileConf.get<number>('LSP.client.port') ?? 0, viewFileConf.get<string>('LSP.client.ip') ?? '127.0.0.1', () => {
                 const { port } = server.address() as net.AddressInfo;
+                client.outputChannel.appendLine("Initialising ViewFile language server");
                 // The server is implemented in PHP
                 const childProcess = spawn(executablePath, [
                     context.asAbsolutePath(
@@ -103,9 +105,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     console.log('ViewFile intellisense:', str);
                     client.outputChannel.appendLine(str);
                 });
-                // childProcess.stdout.on('data', (chunk: Buffer) => {
-                //     console.log('ViewFile intellisense:', chunk + '');
-                // });
+                childProcess.stdout.on('data', (chunk: Buffer) => {
+                    const str = chunk.toString();
+                    client.outputChannel.appendLine(str);
+                    //console.log('ViewFile intellisense:', chunk + '');
+                });
                 childProcess.on('exit', (code, signal) => {
                     client.outputChannel.appendLine(
                         `Language server exited ` + (signal ? `from signal ${signal}` : `with exit code ${code}`)
@@ -139,6 +143,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     // Create the language client and start the client.
     client = new LanguageClient('ViewFile intellisense', serverOptions, clientOptions);
+    client.outputChannel.appendLine("Initialising ViewFile intellisense");
     const disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the
